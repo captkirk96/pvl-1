@@ -6,7 +6,6 @@ from .conftest import assert_series_equal
 from pvlib import snow
 from pvlib.tools import sind
 
-
 def test_fully_covered_nrel():
     dt = pd.date_range(start="2019-1-1 12:00:00", end="2019-1-1 18:00:00",
                        freq='1h')
@@ -15,7 +14,6 @@ def test_fully_covered_nrel():
                          index=dt)
     fully_covered = snow.fully_covered_nrel(snowfall_data)
     assert_series_equal(expected, fully_covered)
-
 
 def test_coverage_nrel_hourly():
     surface_tilt = 45
@@ -34,7 +32,6 @@ def test_coverage_nrel_hourly():
     covered = 1.0 - slide_amt * np.array([0, 1, 2, 3, 4, 5, 6, 7])
     expected = pd.Series(covered, index=dt)
     assert_series_equal(expected, snow_coverage)
-
 
 def test_coverage_nrel_subhourly():
     surface_tilt = 45
@@ -57,7 +54,6 @@ def test_coverage_nrel_subhourly():
     expected = pd.Series(covered, index=dt)
     assert_series_equal(expected, snow_coverage)
 
-
 def test_fully_covered_nrel_irregular():
     # test when frequency is not specified and can't be inferred
     dt = pd.DatetimeIndex(["2019-1-1 11:00:00", "2019-1-1 14:30:00",
@@ -68,7 +64,6 @@ def test_fully_covered_nrel_irregular():
     covered = np.array([False, False, True, False])
     expected = pd.Series(covered, index=dt)
     assert_series_equal(expected, snow_coverage)
-
 
 def test_coverage_nrel_initial():
     surface_tilt = 45
@@ -88,14 +83,12 @@ def test_coverage_nrel_initial():
     expected = pd.Series(covered, index=dt)
     assert_series_equal(expected, snow_coverage)
 
-
 def test_dc_loss_nrel():
     num_strings = 8
     snow_coverage = pd.Series([1, 1, .5, .6, .2, .4, 0])
     expected = pd.Series([1, 1, .5, .625, .25, .5, 0])
     actual = snow.dc_loss_nrel(snow_coverage, num_strings)
     assert_series_equal(expected, actual)
-
 
 def test__townsend_effective_snow():
     snow_total = np.array([25.4, 25.4, 12.7, 2.54, 0, 0, 0, 0, 0, 0, 12.7,
@@ -105,7 +98,6 @@ def test__townsend_effective_snow():
                          254 / 15])
     actual = snow._townsend_effective_snow(snow_total, snow_events)
     np.testing.assert_allclose(expected, actual, rtol=1e-07)
-
 
 def test_loss_townsend():
     snow_total = np.array([25.4, 25.4, 12.7, 2.54, 0, 0, 0, 0, 0, 0, 12.7,
@@ -118,12 +110,12 @@ def test_loss_townsend():
     poa_global = np.array([350000, 350000, 350000, 350000, 350000, 350000,
                            350000, 350000, 350000, 350000, 350000, 350000])
     angle_of_repose = 40
-    slant_height = 2.54
-    lower_edge_height = 0.254
+    slant_height_m = 2.54 / 100  # Convert cm to m
+    lower_edge_height_m = 0.254 / 100  # Convert cm to m
     expected = np.array([0.07696253, 0.07992262, 0.06216201, 0.01715392, 0, 0,
                          0, 0, 0, 0, 0.02643821, 0.06068194])
     actual = snow.loss_townsend(snow_total, snow_events, surface_tilt,
                                 relative_humidity, temp_air,
-                                poa_global, slant_height,
-                                lower_edge_height, angle_of_repose)
+                                poa_global, slant_height_m,
+                                lower_edge_height_m, angle_of_repose)
     np.testing.assert_allclose(expected, actual, rtol=1e-05)
